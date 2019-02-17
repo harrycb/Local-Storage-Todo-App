@@ -9,8 +9,12 @@ var inputFormContainer = document.querySelector('.input-form'),
     output = document.querySelector('.output'),
     statusMsg = document.createElement('p'),
     edit = document.getElementById('edit'),
+    formNode = document.createElement('form'),
     editBox = document.createElement('textarea'),
-    saveEdit = document.createElement('button');
+    saveEdit = document.createElement('button'),
+    editTextContent,
+    trimmedEditTextContent,
+    removeText;
 
 // render stored notes
 resultEl.innerHTML = localStorage.getItem("toDoList");
@@ -99,20 +103,18 @@ if (userInput !== null && saveButton !== null && resultEl !== null) {
     });
 
     // Add event listener for item deletions here... // you can use the same event for edit as well.
-    resultEl.addEventListener('click', outputContainer);
+    document.addEventListener('click', outputContainer);
 
 
 }
 
-// Remove item function
-// But also edit
+// Remove and edit function
 function outputContainer(event){
     event.preventDefault();
-    // Stop parent being
     event.stopPropagation();
 
+    //Delete item
     if(event.target.classList.contains('item-delete')){
-        event.preventDefault();
 
         // Status Message after fired before removed
         output.insertAdjacentElement('beforeEnd',statusMsg);
@@ -139,32 +141,30 @@ function outputContainer(event){
     else if(event.target.classList.contains('edit')){
 
         //Get parent of parent
-        var editTextContent = event.target.parentNode.parentNode;
+        editTextContent = event.target.parentNode.parentNode;
 
         //Text to remove
-        var removeText = 'Edit X';
-        var trimmedEditTextContent = editTextContent.textContent.replace(removeText , '');
-        console.log(trimmedEditTextContent);
+        removeText = 'Edit X';
+        trimmedEditTextContent = editTextContent.textContent.replace(removeText , '');
 
-        output.insertAdjacentElement('beforeEnd',editBox);
+        formNode.id = "edit-form";
+        output.insertAdjacentElement('beforeEnd',formNode);
+
+        formNode.insertAdjacentElement('beforeEnd',editBox);
         editBox.id = 'edit-box';
         output.insertAdjacentElement('beforeEnd',saveEdit);
         saveEdit.textContent = 'Save edit';
         saveEdit.id = 'save-edit';
+        editBox.textContent= '';
         editBox.textContent = trimmedEditTextContent;
 
-        //save edit controls
-        var noteControls = event.target.parentNode.parentNode;
-        noteControls = noteControls.innerHTML;
-
+        //Save edit function
         saveEdit.addEventListener('click' , saveEditFunction);
 
         function saveEditFunction (){
             event.preventDefault();
             event.stopPropagation();
 
-            //Reset value of edit box
-            //editBox.value = '';
             //remove edit box
             editBox.remove();
             saveEdit.remove();
@@ -179,17 +179,11 @@ function outputContainer(event){
 
             function returnVal (){
                 event.target.parentNode.parentNode.innerHTML =  '<a class="item-delete" href="#"><span class="edit">Edit</span> X</a>' + editBox.value;
-                // reset value
-                editBox.textContent = trimmedEditTextContent;
                 storeLocally ();
                 totalItems ();
             }
-
-            //place  edit controls
             return returnVal ();
-
         }
-
     }
 }
 
